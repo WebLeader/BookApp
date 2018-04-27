@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图书下架</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    <style>
+        body{
+            max-width: 640px;
+            min-width: 320px;
+            margin: 0 auto;
+            background: #ffffff;
+        }
+        ul ,li{
+            list-style:none;
+            padding: 0;
+            margin: 0;
+        }
+        .contariner{
+            padding: 2%;
+        }
+        .title{
+            background: #083859;
+            color: #df9329;
+            text-align: center;
+            border-radius: 5px;
+            height: 35px;
+            line-height: 35px;
+            font-size: 16px;
+        }
+        .book_text{
+            background: #083859;
+            border-radius: 5px;
+            margin-top: 6px;
+            height: 50px;
+            line-height: 50px;
+        }
+        .book_text ul{
+            text-align: center;
+        }
+        .book_text ul li{
+            display: inline-block;
+            text-align: center;
+        }
+        .book_text ul li:nth-child(1){
+            font-size: 18px;
+            color: #ffffff;
+        }
+        .book_text ul li:nth-child(2){
+            font-size: 26px;
+            color: #df9329;
+            font-weight: bold;
+            width: 10%;
+        }
+        .book_text ul li:nth-child(3){
+            font-size: 12px;
+            color: #df9329;
+        }
+
+        .book_table{
+            margin-top: 6px;
+        }
+        .book_table table{
+            width: 100%;
+            border: 1px solid #e6e6e6;
+            text-align: center;
+        }
+        .book_table table tr{
+            height: 36px;
+        }
+        .recognition table thead {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .book_table table thead tr {
+            background: #0e4868;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        .book_table table tbody tr td{
+            border: 1px solid #e6e6e6;
+            font-size: 12px;
+        }
+        #position_code{
+            font-size: 16px;
+            font-weight: 300;
+        }
+        .btn{
+            border-radius: 5px;
+        }
+        .btn ul{
+            text-align: center;
+        }
+        .btn ul li{
+            display: inline-block;
+            background: #083859;
+            color: #ffffff;
+            width: 20%;
+            text-align: center;
+            margin: 2%;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .errNum{
+            color: rgba(223, 32, 32, 1);
+        }
+        .err{
+            background-color: rgba(223, 32, 32, 1);
+        }
+        .borrowNum{
+            color: rgba(223, 147, 32, 1);
+        }
+        .borrow{
+            background-color: rgba(223, 147, 32, 1);
+        }
+        .existNum{
+            color: rgba(10, 117, 10, 1);
+        }
+        .exist{
+            background-color: rgba(10, 117, 10, 1);
+        }
+    </style>
+</head>
+<body>
+<div class="contariner">
+    <div class="title">图书读取</div>
+    <div class="book_text">
+        <ul>
+            <li><span>扫 描 图 书:</span></li>
+            <li><span id="book_num">0</span></li>
+            <li><span>册</span></li>
+        </ul>
+    </div>
+    <div class="book_table">
+        <table>
+            <thead>
+            <tr>
+                <td>序号</td>
+                <td>图书条码号</td>
+                <td>图书名称</td>
+                <td>层位信息</td>
+                <td>状态</td>
+                <td><input type="checkbox" name="book" id="book" value="" onclick="swapCheck()">全选</td>
+            </tr>
+            </thead>
+            <tbody>
+            <!--<tr>-->
+            <!--<td>1</td>-->
+            <!--<td>561256</td>-->
+            <!--<td>123123</td>-->
+            <!--<td>sdsdsd</td>-->
+            <!--<td>错架</td>-->
+            <!--</tr>-->
+            </tbody>
+        </table>
+    </div>
+    <div class="btn">
+        <ul>
+            <li id="scan">扫描</li>
+            <li id="soldOut">下架</li>
+            <li id="clearData">清空</li>
+        </ul>
+    </div>
+    <!--测试数据-->
+    <span id="data"></span>
+    <span id="Array"></span>
+</div>
+<script src="http://www.tquanba.cn/Book/js/jquery-1.9.1.min.js"></script>
+<script src="http://www.tquanba.cn/Book/js/layer/layer.min.js"></script>
+<script type="text/javascript">
+
+    var t = 0;//已识别图书数
+    var c = 0;//识别到图书标签数
+    var bookArray = new Array();//存放标签
+    var basePath = "http://120.79.2.64/olixf-library/api/bookReservation/"
+
+    function sendData(data) {
+        if (window.originalPostMessage) {
+            window.postMessage(data);
+        } else {
+            throw Error('postMessage接口还未注入');
+        }
+    }
+
+    window.onload = function () {
+//        var a = "39002468102fffffffffff1f,019787540466145000100010,019787539156989000100010,019787508647715000100010"
+//        var arr = a.split(",");
+//        console.log(arr)
+//        layer.msg("1111111")
+//        for(i in arr){
+//            var data = arr[i];
+//            console.log(data)
+//            handleData(data);
+//        }
+        document.addEventListener('message', function (e) {
+            var data = e.data
+            //document.getElementById('data').textContent = e.data;
+            var arr = data.split(",");
+            console.log(arr)
+            for(i in arr){
+                var data = arr[i];
+                console.log(data)
+                handleData(data);
+            }
+        });
+        //扫描
+        document.getElementById('scan').onclick = function () {
+            var type = 0
+            sendData(type);
+        }
+        //扫描
+        document.getElementById('soldOut').onclick = function () {
+            soldOut();
+        }
+        //停止
+        document.getElementById('clearData').onclick = function () {
+            var type = 1
+            sendData(type);
+            clearData();
+        }
+    }
+
+
+    function handleData(data){
+        if(data=="00"){
+            return;
+        }
+        var type = data.substr(0,1);//标签类型
+        if(type==0){//图书标签
+            var bookNo = data.substr(2,17);
+            var r = $.inArray(bookNo, bookArray);
+            if(r==-1){
+                bookArray[c] = bookNo;
+                c ++;
+                $.post(basePath+"getBookPosition.do",{
+                    bookNo : bookNo
+                },function(result){
+                    console.log(result)
+                    if(result.meta.success){
+                        var json = result.data;
+                        t ++;
+                        var html='';
+                        if(json.position == null){
+                            html= '<tr id="'+json.bookNo+'"><td>'+t+'</td><td>'+json.bookNo+'</td><td>《'+json.book.title+'》</td><td></td><td>在馆</td><td><input type="checkbox" name="book" id="book" value="'+json.bookNo+'"></td></tr>';
+                            //html = '<tr id="'+json.bookNo+'"><td><input type="checkbox" name="book" id="book" value="'+json.bookNo+'"></td><td>'+t+'</td><td>'+json.bookNo+'</td><td>《'+json.book.title+'》</td><td>'+json.position.name+'</td><td>在馆</td></tr>';
+                        }else{
+                            html= '<tr id="'+json.bookNo+'"><td>'+t+'</td><td>'+json.bookNo+'</td><td>《'+json.book.title+'》</td><td>'+json.position.name+'</td><td>新书</td><td><input type="checkbox" name="book" id="book" value="'+json.bookNo+'"></td></tr>';
+                            //html = '<tr id="'+json.bookNo+'"><td><input type="checkbox" name="book" id="book" value="'+json.bookNo+'"></td><td>'+t+'</td><td>'+json.bookNo+'</td><td>《'+json.book.title+'》</td><td></td><td>新书</td></tr>';
+                        }
+                        $(".book_table table tbody").append(html);
+                        $("#book_num").html(t);
+                    }else{
+                        layer.msg(result.meta.message)
+                    }
+                });
+            }
+        }
+    }
+
+    //checkbox 全选/取消全选
+    var isCheckAll = false;
+    function swapCheck() {
+        if (isCheckAll) {
+            $("input[type='checkbox']").each(function() {
+                this.checked = false;
+            });
+            isCheckAll = false;
+        } else {
+            $("input[type='checkbox']").each(function() {
+                this.checked = true;
+            });
+            isCheckAll = true;
+        }
+    }
+
+    function soldOut(){
+        var i = 0;
+        var books = new Array();
+        $.each($('input:checkbox:checked'),function(){
+            var val = $(this).val();
+            if(val!=''){
+                books[i] = val;
+                i ++;
+            }
+        });
+        if(books.length==0){
+            layer.msg("请勾选要下架的图书！")
+            return;
+        }
+        $.post(basePath+"soldOut.do",{
+            books : books.join(',')
+        },function(result){
+            console.log(result)
+            if(result.meta.success){
+                for(var i in books){
+                    $('#'+books[i]).remove();
+                    t--;
+                    $("#book_num").html(t);
+                }
+                layer.msg("下架成功！")
+            }else{
+                layer.msg(result.meta.message)
+            }
+        });
+    }
+
+    /**
+     * 清空列表
+     */
+    function clearData(){
+        t = 0;
+        c = 0;
+        bookArray.splice(0,bookArray.length);
+        $(".book_table table tbody").html('');
+        $("#book_num").html(0);
+    }
+</script>
+</body>
+</html>

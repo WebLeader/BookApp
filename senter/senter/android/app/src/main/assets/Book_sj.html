@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图书上架</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    <style>
+        body{
+            max-width: 640px;
+            min-width: 320px;
+            margin: 0 auto;
+            background: #ffffff;
+        }
+        ul ,li{
+            list-style:none;
+            padding: 0;
+            margin: 0;
+        }
+        .contariner{
+            padding: 2%;
+        }
+        .title{
+            background: #083859;
+            color: #df9329;
+            text-align: center;
+            border-radius: 5px;
+            height: 35px;
+            line-height: 35px;
+            font-size: 16px;
+        }
+        .book_text{
+            background: #083859;
+            border-radius: 5px;
+            margin-top: 6px;
+            height: 50px;
+            line-height: 50px;
+        }
+        .book_text ul{
+            text-align: center;
+        }
+        .book_text ul li{
+            display: inline-block;
+            text-align: center;
+        }
+        .book_text ul li:nth-child(1){
+            font-size: 18px;
+            color: #ffffff;
+        }
+        .book_text ul li:nth-child(2){
+            font-size: 26px;
+            color: #df9329;
+            font-weight: bold;
+            width: 10%;
+        }
+        .book_text ul li:nth-child(3){
+            font-size: 12px;
+            color: #df9329;
+        }
+        .book_text{
+            text-align: center;
+        }
+        .book_text div{
+            display: inline-block;
+        }
+        .p1{
+            font-size: 18px;
+            color: #ffffff;
+        }
+        .book_table{
+            margin-top: 6px;
+        }
+        .book_table table{
+            width: 100%;
+            border: 1px solid #e6e6e6;
+            text-align: center;
+        }
+        .book_table table tr{
+            height: 36px;
+        }
+        .recognition table thead {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .book_table table thead tr {
+            background: #0e4868;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        .book_table table tbody tr td{
+            border: 1px solid #e6e6e6;
+            font-size: 12px;
+        }
+        #position_code{
+            font-size: 14px;
+            font-weight: 300;
+            color: #c08b23;
+        }
+        .btn{
+            border-radius: 5px;
+        }
+        .btn ul{
+            text-align: center;
+        }
+        .btn ul li{
+            display: inline-block;
+            background: #083859;
+            color: #ffffff;
+            width: 20%;
+            text-align: center;
+            margin: 2%;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .errNum{
+            color: rgba(223, 32, 32, 1);
+        }
+        .err{
+            background-color: rgba(223, 32, 32, 1);
+        }
+        .borrowNum{
+            color: rgba(223, 147, 32, 1);
+        }
+        .borrow{
+            background-color: rgba(223, 147, 32, 1);
+        }
+        .existNum{
+            color: rgba(10, 117, 10, 1);
+        }
+        .exist{
+            background-color: rgba(10, 117, 10, 1);
+        }
+    </style>
+</head>
+<body>
+<div class="contariner">
+    <div class="title">图书读取</div>
+    <div class="book_text">
+        <ul>
+            <li><span>扫 描 图 书:</span></li>
+            <li><span id="book_num">0</span></li>
+            <li><span>册</span></li>
+        </ul>
+    </div>
+    <div class="book_text">
+        <div class="p1">
+            <span>层 位：</span>
+        </div>
+        <div class="p2">
+            <span id="position_code"></span>
+        </div>
+    </div>
+    <div class="book_table">
+        <table>
+            <thead>
+            <tr>
+                <td>序号</td>
+                <td>图书条码号</td>
+                <td>图书名称</td>
+                <td>层位信息</td>
+                <td>状态</td>
+            </tr>
+            </thead>
+            <tbody id="list">
+            <!--<tr>-->
+            <!--<td>1</td>-->
+            <!--<td>561256</td>-->
+            <!--<td>123123</td>-->
+            <!--<td>sdsdsd</td>-->
+            <!--<td>错架</td>-->
+            <!--</tr>-->
+            </tbody>
+        </table>
+    </div>
+    <div class="btn">
+        <ul>
+            <li id="scan">扫描</li>
+            <li id="confirm">上架</li>
+            <li id="clearData">清空</li>
+        </ul>
+    </div>
+    <!--测试数据-->
+    <span id="data"></span>
+    <span id="Array"></span>
+</div>
+<script src="http://www.tquanba.cn/Book/js/jquery-1.9.1.min.js"></script>
+<script src="http://www.tquanba.cn/Book/js/layer/layer.min.js"></script>
+<script type="text/javascript">
+    var t = 0;//已识别图书数
+    var c = 0;//识别到图书标签数
+    var bookArray = new Array();//存放所有图书标签
+    var eNum = 0;//错架图书标签数
+    var errBookArray = new Array();//存放错架图书标签
+    var nNum = 0;//新书图书标签数
+    var newBookArray = new Array();//存放新书图书标签
+    var existNum = 0;//在架图书标签数
+    var existBookArray = new Array();//存放在架图书标签
+    var p = 0;//识别到层位标签数
+    var positionNo= "";//层位编码
+    var positionArray = new Array();//存放层位标签
+    var basePath = "http://120.79.2.64/olixf-library/api/bookReservation/"
+    var basePathInfoByNo = "http://120.79.2.64/olixf-library/api/"
+
+    function sendData(data) {
+        if (window.originalPostMessage) {
+            window.postMessage(data);
+        } else {
+            throw Error('postMessage接口还未注入');
+        }
+    }
+
+    window.onload = function () {
+//        var a = "39002468102fffffffffff1f,019787540466145000100010,019787539156989000100010,019787508647715000100010"
+//        var arr = a.split(",");
+//        console.log(arr)
+//        layer.msg("1111111")
+//        for(i in arr){
+//            var data = arr[i];
+//            console.log(data)
+//            handleData(data);
+//        }
+        document.addEventListener('message', function (e) {
+            var data = e.data
+            //document.getElementById('data').textContent = e.data;
+            var arr = data.split(",");
+            console.log(arr)
+            for(i in arr){
+                var data = arr[i];
+                console.log(data)
+                handleData(data);
+            }
+        });
+        //扫描
+        document.getElementById('scan').onclick = function () {
+            var type = 0
+            sendData(type);
+        }
+        //扫描
+        document.getElementById('confirm').onclick = function () {
+            confirm();
+        }
+        //停止
+        document.getElementById('clearData').onclick = function () {
+            var type = 1
+            sendData(type);
+            clearData();
+        }
+    }
+
+    function handleData(data){
+        if(data=="00"){
+            return;
+        }
+        var type = data.substr(0,1);//标签类型
+        if(type==0){//图书标签
+            var bookNo = data.substr(2,17);
+            var r = $.inArray(bookNo, bookArray);
+            if(r==-1&&p==1){
+                bookArray[c] = bookNo;
+                c++;
+                $.post(basePath+"getBookPositionStateList.do",{
+                    books : bookNo,
+                    positionNo : positionNo
+                },function(result){
+                    console.log(result)
+                    var meta = result.meta;
+                    if(meta.success){
+                        var json = result.data;
+                        for(var i in json){
+                            t ++;
+                            var common='',html='';
+                            if(json[i].position!=null){
+                                if(json[i].positionNo!=positionNo){
+                                    common = "错架";
+                                    errBookArray[eNum] = json[i].bookNo;
+                                    eNum ++;
+                                }else{
+                                    existBookArray[existNum] = json[i].bookNo;
+                                    existNum ++;
+                                }
+                                html= '<tr id="'+json[i].bookNo+'"><td>'+t+'</td><td>'+json[i].bookNo+'</td><td>《'+json[i].book.title+'》</td><td>'+json[i].position.name+'</td><td>在馆</td></tr>';
+                                //html = '<tr id="'+json[i].bookNo+'"><td>在馆</td><td>'+t+'</td><td>'+json[i].bookNo+'</td><td>《'+json[i].book.title+'》</td><td>'+json[i].position.name+'</td><td>'+common+'</td></tr>';
+                            }else{
+                                html= '<tr id="'+json[i].bookNo+'"><td>'+t+'</td><td>'+json[i].bookNo+'</td><td>《'+json[i].book.title+'》</td><td></td><td>新书</td></tr>';
+                                //html = '<tr id="'+json[i].bookNo+'"><td>新书</td><td>'+t+'</td><td>'+json[i].bookNo+'</td><td>《'+json[i].book.title+'》</td><td></td><td></td></tr>';
+                                newBookArray[nNum] = json[i].bookNo;
+                                nNum ++;
+                            }
+                            $(".book_table table tbody").append(html);
+                            $("#book_num").html(t);
+                        }
+                    }else{
+                        layer.msg(meta.message)
+                    }
+                });
+            }
+        }else if(type==3){//层位
+            var r = $.inArray(data, positionArray);
+            if(r==-1&&p==0){
+                positionArray[p] = data;
+                p++;
+                positionNo = Number(data.substr(1,10));
+                $.post(basePathInfoByNo+"position/getPositionInfoByNo.do",{
+                    positionNo:positionNo
+                },function(result){
+                    console.log(result)
+                    var meta = result.meta;
+                    var name = result.data.name;
+                    console.log(name)
+                    if(meta.success){
+                        $("#position_code").html(name)
+                    }else{
+                        layer.msg(meta.message)
+                    }
+                });
+            }
+        }
+    }
+    /**
+     * 上架询问
+     */
+    function confirm(){
+        if(bookArray.length==0){
+            layer.msg("请扫描上架图书");
+            return;
+        }
+        if(positionNo==""){
+            layer.msg("请扫描上架层位")
+            return;
+        }
+        if(errBookArray.length>0){//询问是否将错架图书上架
+//            $('#confirm').removeClass('hidden')
+//            index = layer.open({
+//                type: 1,
+//                title: false,
+//                shadeClose: false,
+//                skin: 'yourclass',
+//                scrollbar: false,
+//                content: $("#confirm")
+//            });
+            putaway(newBookArray.join(","),existBookArray.join(","),errBookArray.join(","),positionNo);
+        }else{
+            putaway(newBookArray.join(","),existBookArray.join(","),'',positionNo);
+        }
+    }
+
+//    function putAll(){
+//        $('#confirm').addClass('hidden');
+//        layer.close(index);
+//        //新书、错架上架
+//        putaway(newBookArray.join(","),existBookArray.join(","),errBookArray.join(","),positionNo);
+//    }
+//
+//    function putNew(){
+//        $('#confirm').addClass('hidden');
+//        layer.close(index);
+//        //新书上架
+//        putaway(newBookArray.join(","),existBookArray.join(","),'',positionNo);
+//    }
+
+    /**
+     * 新书上架
+     */
+    function putaway(newBooks,existBooks,errBooks,positionNo){
+        //图书上架接口
+        $.post(basePath+"putaway.do",{
+            newBooks : newBooks,
+            existBooks : existBooks,
+            errBooks : errBooks,
+            positionNo : positionNo
+        },function(result){
+            var meta = result.meta;
+            if(meta.success){
+                if(newBooks!=''){
+                    var nbooks = newBooks.split(',');
+                    for(var i in nbooks){
+                        $('#'+nbooks[i]).addClass("exist")
+                        $('#'+nbooks[i]+' td').eq(5).html('成功');
+                    }
+                }
+                if(existBooks!=''){
+                    var exBooks = existBooks.split(',');
+                    for(var i=0;i<exBooks.length;i++){
+                        $('#'+exBooks[i]).addClass("exist")
+                        $('#'+exBooks[i]+' td').eq(5).html('成功');
+                    }
+                }
+                if(errBooks!=''){
+                    var ebooks = errBooks.split(',')
+                    for(var i=0;i<ebooks.length;i++){
+                        $('#'+ebooks[i]).addClass("exist")
+                        $('#'+ebooks[i]+' td').eq(0).html('成功');
+                        $('#'+ebooks[i]+' td').eq(5).html('');
+                    }
+                }
+
+                c = 0;
+                eNum = 0;
+                existNum = 0;
+                nNum = 0;
+                bookArray.splice(0,bookArray.length);
+                newBookArray.splice(0,newBookArray.length);
+                existBookArray.splice(0,newBookArray.length);
+                errBookArray.splice(0,newBookArray.errBookArray);
+                if(result.data>0){
+                    layer.msg("图书上架成功！")
+                }
+            }else{
+                layer.msg(meta.message)
+            }
+        });
+    }
+
+    /**
+     * 清空列表
+     */
+    function clearData()
+    {
+        p = 0;
+        t = 0;
+        c = 0;
+        eNum = 0;
+        nNum = 0;
+        existNum = 0;
+        bookArray.splice(0,bookArray.length);
+        newBookArray.splice(0,newBookArray.length);
+        existBookArray.splice(0,newBookArray.length);
+        errBookArray.splice(0,newBookArray.errBookArray);
+        positionArray.splice(0,positionArray.length);
+
+        positionNo = '';
+        $("#book_num").html(c);
+        $("#position_code").html('');
+        $("#list").html('');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "wechat": {
+        "appid": "wx7d0f8dcffe3b32d9",
+        "appsecret": "6798fb5e532bd1baee8a60a6eedc4827"
+    },
+    "qq":{
+        "appid": "",
+        "appsecret": ""
+    }
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+
+</head>
+<body>
+<div style="text-align: center">
+    <button id="button">发送数据到react native</button>
+    <p style="text-align: center">收到react native发送的数据: <span id="data"></span></p>
+</div>
+<script>
+    function sendData(data) {
+        if (window.originalPostMessage) {
+            window.postMessage(data);
+        } else {
+            throw Error('postMessage接口还未注入');
+        }
+    }
+
+    window.onload = function () {
+        document.addEventListener('message', function (e) {
+            document.getElementById('data').textContent = e.data;
+        });
+        document.getElementById('button').onclick = function () {
+            var data = 0
+            sendData(data);
+        }
+    }
+</script>
+</body>
+</html>
